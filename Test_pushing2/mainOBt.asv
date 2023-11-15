@@ -1,0 +1,74 @@
+close all
+clear classes
+count = 0;
+
+robs(1,2) = Rob();
+obs = Obs(2);
+robs
+
+dt =0.1;
+k = 50;
+figure(1)
+trace = [obs.p];
+v = [obs.v];
+
+
+
+while(0)
+    
+     check_co(rob,obs);
+%     obs.p_co = p_co;
+%     if (check == 1)
+%         delta_i_ = p_co - rob.p;
+%         delta_i = delta_i_/norm(delta_i_)*(0.08-norm(delta_i_));
+%         obs.f = 400*delta_i;
+%     else
+%        obs.f = [0 0]; 
+%     end
+%     obs.f = k*[(obs.s_xy(1,1700) - obs.s_xy(1,1600)) , (obs.s_xy(2,1700) - obs.s_xy(2,1600))];
+%     %obs.p_co = [obs.s_xy(1,166), obs.s_xy(2,166)];
+%    obs.p_co = [obs.s_xy(1,1333), obs.s_xy(2,1333)];
+    obs.update_aV(dt);
+    obs.updatePO(dt);
+     rob.updatePO(dt);
+    v = [v, norm(obs.v)];
+    
+    hold off
+   
+    plot(obs.s_xy(1,:),obs.s_xy(2,:))
+    hold on
+    plot(obs.s_xy(1,:),obs.s_xy(2,:))
+    hold on
+    plot(rob.r_xy(1,:), rob.r_xy(2,:))
+    trace = [trace; obs.p];
+    plot(trace(:,1),trace(:,2))
+    axis([-3,3,-3,3])
+      count = count +1;
+      
+    pause(0.01);
+     
+end
+
+% function [check, p_co] = check_co(rob, obs)
+% %ref_obj :(2xN), obj(1x2) point colision
+% obj = rob.p;
+% ref_obj = obs.s_xy;
+%     min_dis = inf;
+% for i = 1:length(ref_obj)    
+%     dis = norm(obj-ref_obj(:,i)');
+%     if dis <= min_dis 
+%         min_dis = dis;
+%         p_co = ref_obj(:,i)';
+%     end
+% end  
+% 
+%     if min_dis <= 0.08
+%         check = 1;
+%     else
+%         check = 0;
+%     end
+% end
+
+% function c = dotVec(a,b) %chiếu a lên b
+%     c = dot(a,b/norm(b))*b/norm(b);
+% end
