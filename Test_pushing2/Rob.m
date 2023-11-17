@@ -10,11 +10,18 @@ classdef Rob < handle
    end
     
     properties
-
+        %local properties
         p = Rob.p_origin;
         v = [0 0 ];
+        omega = 0;
+        head = -pi/2;%heading
+        
+        %interact (wwith obs) properties
+        theta = [];
+        f     = [];
         r_xy = Rob.robot_shape(Rob.p_origin);
-
+        r_heading = [0 0; 0 0];
+        side;
          
     end
     
@@ -32,11 +39,21 @@ classdef Rob < handle
     
     methods
         function updatePO(obj,dt) %newValue : 1x2
-            obj.p = obj.p+ obj.v*dt;
-            obj.r_xy = obj.ro_xy + obj.p'; 
+            %obj.p = obj.p+ obj.v*dt;
+            obj.head = obj.head + obj.omega * dt;
+            x = obj.p(1) + norm(obj.v)*cos(obj.head)*dt; 
+            y = obj.p(2) + norm(obj.v)*sin(obj.head)*dt; 
+            obj.p = [x, y];
+            obj.r_xy = obj.ro_xy + obj.p';
+            obj.r_heading = [obj.p; obj.p + [obj.r*cos(obj.head), obj.r*sin(obj.head)] ];
+            
         end
             
         
-
-    end
+        function plot_rob(obj)
+            plot(obj.r_xy(1,:), obj.r_xy(2,:))
+            hold on
+            plot(obj.r_heading(:,1), obj.r_heading(:,2))
+        end
+        end
 end

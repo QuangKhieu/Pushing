@@ -7,8 +7,8 @@ classdef Obs < handle
         p_y = [0 0 0.4 0.4]*2-0.4;
         so_xy = Obs.make_shape(Obs.p_x, Obs.p_y); % 2*N
         env = Env() ;
-        m = 1;
-        I = 0.05;
+        m = 2;
+        I = 0.2;
    end
     properties
         
@@ -109,13 +109,7 @@ classdef Obs < handle
             end
             
             obj.a = ([v_x, v_y] - obj.v)/dt;
-            obj.v = [v_x, v_y];
-            
-            
-            
-            
-            
-            
+            obj.v = [v_x, v_y];                        
             
             %sum moment
             sum_cf = 0;
