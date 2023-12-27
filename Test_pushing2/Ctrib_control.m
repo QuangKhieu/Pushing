@@ -11,7 +11,7 @@ classdef Ctrib_control <handle
     properties
         
         f0 = 1.5;
-        K_Po = 2;
+        K_Po = 1.5;
         K_Io = 0.5;
         K_Do = 0;
         error_old = []; %(alpha) dau vao dieu khien tai thoi diem (t-dt)

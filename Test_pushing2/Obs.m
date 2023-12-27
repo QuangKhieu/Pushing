@@ -3,12 +3,12 @@ classdef Obs < handle
     %   Detailed explanation goes here
    properties (Constant = true)
        %dỉnh đa giác
-        p_x = [0 0.4 0.4 0]*2-0.4; 
-        p_y = [0 0 0.4 0.4]*2-0.4;
+        p_x = [0 0.4 0.4 0]*3-0.6; 
+        p_y = [0 0 0.4 0.4]*3-0.6;
         so_xy = Obs.make_shape(Obs.p_x, Obs.p_y); % 2*N
         env = Env() ;
         m = 2;
-        I = 0.2;
+        I = 0.15;
    end
     properties
         
@@ -71,55 +71,116 @@ classdef Obs < handle
 
         function update_aV(obj, dt)
             % pt tong hop 
-            % ma = sigma(f) -muy0_t*sign((vo + a*dt) - muy1_t*(vo + a*dt))=>solve
+
             % Ia_ht = sigma(cross(fi,ri)) +Mf
             
+            %lam viec tren phuong sum_f
+            % obj.v = vf + vnf (vf v theo phuong f)
+            vf  = [0 0];
+            %am_vf = 0;% do lon v_f
+            vnf = obj.v;
+            
             sum_f = [sum(obj.f(:,1)),sum(obj.f(:,2))]; % tong hop luc
+            am_sum_f = norm(sum_f); %do lon
             
-            %V_x
-            v_x = 0;
-            no1 = (obj.m/dt*obj.v(1) + sum_f(1) - obj.env.muy0_t*obj.m)/(obj.m/dt+obj.env.muy1_t);% v_x1
-            no2 = (obj.m/dt*obj.v(1) + sum_f(1) + obj.env.muy0_t*obj.m)/(obj.m/dt+obj.env.muy1_t);% v_x2
-            
-            if (no1>0 && no2>0)
-                v_x = no1;
-            elseif (no1<0 && no2<0)
-                v_x = no2;
-            elseif ((no1<0 && no2>0) || no1*no2 == 0 )
-                v_x = 0;
-            else
-                warning('problem with no at V_x')
-                disp(no1,no2)
+            % Các bước bắt đầu tách v ban đầu của vật thành 2 thành phần,
+            % trong ddos co một thanh phần cùng hướng với lực tác dụng, sau
+            % đó tính vo của vật mà lực ma sát tác dụng vào hai thành
+            % phần v, bước tiếp theo tổng hợp lại v. .ta có v tổng hợp sau
+            % khi đẩy tại mỗi time_step
+            % Trong trường hợp chỉ lực tác dụng vào vật  khác 0
+            if am_sum_f ~=0
+                ang_sum_f = atan2(sum_f(2), sum_f(1)); % huong sum_f
+                am_sum_f = norm(sum_f); %do lon
+                %chieu obs_v len sumf (vector) roi lay do lon
+                am_vf = dot(obj.v, sum_f/norm(sum_f));
+                vnf = obj.v - am_vf*sum_f/norm(sum_f);
+
+                v_ = 0; % do lon cua obs_v moi
+                %cal 
+                no1 = (obj.m/dt*am_vf + am_sum_f - obj.env.muy0_t*obj.m)/(obj.m/dt+obj.env.muy1_t);% v_x1
+                no2 = (obj.m/dt*am_vf + am_sum_f + obj.env.muy0_t*obj.m)/(obj.m/dt+obj.env.muy1_t);% v_x2
+
+                if (no1>0 && no2>0)
+                    v_ = no1;
+                elseif (no1<0 && no2<0)
+                    v_ = no2;
+                elseif ((no1<0 && no2>0) || no1*no2 == 0 )
+                    v_ = 0;
+                else
+                    warning('problem with no at V')
+                    disp(no1,no2)
+                end            
+                % cal vec_
+                 vf = [v_*cos(ang_sum_f), v_*sin(ang_sum_f)]; 
             end
             
-            %V_y
-            v_y = 0;
-            no1 = (obj.m/dt*obj.v(2) + sum_f(2) - obj.env.muy0_t*obj.m)/(obj.m/dt+obj.env.muy1_t);% v_y1
-            no2 = (obj.m/dt*obj.v(2) + sum_f(2) + obj.env.muy0_t*obj.m)/(obj.m/dt+obj.env.muy1_t);% v_Y2
             
-            if (no1>0 && no2>0)
-                v_y = no1;
-            elseif (no1<0 && no2<0)
-                v_y = no2;
-            elseif ((no1<0 && no2>0) || no1*no2 == 0 )
-                v_y = 0;
+            ang_vnf = atan2(vnf(2), vnf(1));
+            am_vnf  = norm(vnf);
+            v_ = 0; % do lon cua obs_v moi
+            %cal vnf component
+            no1 = (obj.m/dt*am_vnf - obj.env.muy0_t*obj.m)/(obj.m/dt+obj.env.muy1_t);% v_1
+            %no2 = (obj.m/dt*am_vnf + obj.env.muy0_t*obj.m)/(obj.m/dt+obj.env.muy1_t);% v_2
+    
+            
+            if (no1>0)
+                v_ = no1;
+            elseif (no1<=0)
+                v_ = 0;
             else
-                warning('problem with no at V_y')
+                warning('problem with no at V_nf')
                 disp(no1,no2)
-            end
+            end            
+            % cal vec_
+             vnf = [v_*cos(ang_vnf), v_*sin(ang_vnf)];
+             %ting hop
+             obj.v = vf + vnf;
             
-            obj.a = ([v_x, v_y] - obj.v)/dt;
-            obj.v = [v_x, v_y];                        
+%             %V_x
+%             v_x = 0;
+%             no1 = (obj.m/dt*obj.v(1) + sum_f(1) - obj.env.muy0_t*obj.m)/(obj.m/dt+obj.env.muy1_t)% v_x1
+%             no2 = (obj.m/dt*obj.v(1) + sum_f(1) + obj.env.muy0_t*obj.m)/(obj.m/dt+obj.env.muy1_t)% v_x2
+%             
+%             if (no1>0 && no2>0)
+%                 v_x = no1;
+%             elseif (no1<0 && no2<0)
+%                 v_x = no2;
+%             elseif ((no1<0 && no2>0) || no1*no2 == 0 )
+%                 v_x = 0;
+%             else
+%                 warning('problem with no at V_x')
+%                 disp(no1,no2)
+%             end
+%             
+%             %V_y
+%             v_y = 0;
+%             no1 = (obj.m/dt*obj.v(2) + sum_f(2) - obj.env.muy0_t*obj.m)/(obj.m/dt+obj.env.muy1_t);% v_y1
+%             no2 = (obj.m/dt*obj.v(2) + sum_f(2) + obj.env.muy0_t*obj.m)/(obj.m/dt+obj.env.muy1_t);% v_Y2
+%             
+%             if (no1>0 && no2>0)
+%                 v_y = no1;
+%             elseif (no1<0 && no2<0)
+%                 v_y = no2;
+%             elseif ((no1<0 && no2>0) || no1*no2 == 0 )
+%                 v_y = 0;
+%             else
+%                 warning('problem with no at V_y')
+%                 disp(no1,no2)
+%             end
+            
+%            obj.a = ([v_x, v_y] - obj.v)/dt;
+%           obj.v = [v_x, v_y];                        
             
             %sum moment
-            sum_cf = 0;
+            
             r_vec = obj.p_co-obj.p; %n*2 (n la so robot)
             % cross matrix f vs matrix r
             
             
             cros = cross([r_vec'; zeros(1, height(r_vec))] , [obj.f' ; zeros(1,height(r_vec))]);
             omega_ = 0;
-            sum_cf = sum(cros(3,:)); 
+            sum_cf = sum(cros(3,:));
             
             
             no1 = (obj.I/dt*obj.omega + sum_cf - obj.env.muy0_r*obj.I)/(obj.I/dt + obj.env.muy1_r);
@@ -134,9 +195,9 @@ classdef Obs < handle
                 warning('problem with no at oemga')
                 disp(no1,no2)
             end
+            
             obj.a_ht = (obj.omega - omega_)/dt; 
             obj.omega = omega_;
-            
         end
         
        

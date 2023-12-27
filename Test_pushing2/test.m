@@ -1,14 +1,18 @@
 
-clear all
-close all
 
+
+% clear all
+% close all
+% obs = Obs();
+% a = [1 0];
+% b = [1 1];
 
 
 %robs = [Rob(), Rob() ];
-robs(1,2) = Rob();
-robs(2).v = [0 2];
-robs(1).p = [0 0 ];
-robs(1).p = [0 0];
+% robs(1,2) = Rob();
+% robs(2).v = [0 2];
+% robs(1).p = [0 0 ];
+% robs(1).p = [0 0];
 % i = 0;
 % v =[];
 % syms x
@@ -65,7 +69,7 @@ robs(1).p = [0 0];
 % p1 = [0 0 ];
 % p2 = [4 0 ];
 % v = [2 0];
-%% Chiếu vector có đầu vào gồm 2 điểm 1 vector V (p1 p2 vc)
+
 % %base = b1
 % vec_dr = [p2(1) - p1(1), p2(2) - p1(2)];
 % % dr_w = rotate vec_dr 90;
@@ -119,3 +123,34 @@ robs(1).p = [0 0];
 % 
 % 
 % end
+syms a b t
+	
+%f = abs(a)*abs(t);
+%f = sign ()
+%f_FT = fourier(f)
+% syms vg(t)
+% ode = -0.1*sign(diff(vg,1))*5 - 0.2*vg  == 10 ;
+% cond = vg(0) == 0.5;
+% ySol(t) = dsolve(ode,cond)
+% S = dsolve(ode,'Implicit',true)
+
+% s = dsolve('-(Dy)*0.1*1/abs(Dy) - 0.2*y = 10','t')
+% ezplot(s,[-2,4])
+
+t = 0:0.1:10;
+% vg = sin(2*pi*t);
+% dif_vg = 2*pi*cos(2*pi*t);
+
+vg = 0.5*t.^2;
+dif_vg = t;
+
+
+muy_0 = 0.1;
+muy_1 = 0.5;
+m = 1;
+f = -muy_0*m*sign(dif_vg) - muy_1*vg;
+plot(t,f)
+hold on
+plot(t,vg)
+hold on 
+plot(t, m.*dif_vg)

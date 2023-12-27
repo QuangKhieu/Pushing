@@ -1,11 +1,11 @@
 close all
-clear 
+clear classes
 count = 0;
 %Setup 2 robot, 1 object
 robs(1,2) = Rob();
 obs = Obs(2);
-robs(1).p = [-0.25 0.55];
-robs(2).p = [0.25 0.55];
+robs(1).p = [-0.3 0.75];
+robs(2).p = [0.3 0.75];
 robs(1).v = [0 -0.02];
 robs(2).v = [0 -0.02];
 robs(1).side =  1; 
@@ -16,10 +16,12 @@ in_control =  Inner_control(robs);
 k = 50;
 figure(1)
 trace = [obs.p];
+obs_heading = [obs.heading];
 v = [obs.v];
 % các ràng buộc : vật luôn tương tác với vật, góc 
 
 designed_angle = -pi/2 + pi/18;
+%designed_angle = -pi/2 ;
 
 
 while(true)
@@ -42,6 +44,7 @@ while(true)
     sensing_I(robs,obs); 
     obs.update_aV(dt);
     obs.updatePO(dt);
+    obs_heading = [obs_heading, obs.heading];
 
 
 
@@ -61,7 +64,7 @@ while(true)
     
     trace = [trace; obs.p];
     plot(trace(:,1),trace(:,2))
-    axis([-3,3,-3,3])
+    axis([-7,7,-7,7])
       count = count +1;
       
     pause(0.01);

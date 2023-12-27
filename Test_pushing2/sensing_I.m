@@ -2,7 +2,7 @@ function sensing_I(robs, obs)
 %ref_obj :(2xN), obj(1x2) point colision
        
     ref_obj = obs.s_xy;
-    obs.f
+    
     % xet tung robot
     for i_th = 1:length(robs)
         min_dis = inf;
@@ -27,10 +27,12 @@ function sensing_I(robs, obs)
                 delta_i = delta_i_/norm(delta_i_)*(0.08-norm(delta_i_));
                 f_ = robs(i_th).K*delta_i;
                 obs.f(i_th,:) = f_;
+
                 robs(i_th).theta = atan2(delta_i(2), delta_i(1))...
                                     -(robs(i_th).head - floor((robs(i_th).head + pi)/(2*pi))*2*pi );
                 %robot nhan luc nguoc chieu, cung do lon
-                robs(i_th).f  = -1*f_;              
+                robs(i_th).f  = -1*f_;   
+                a = robs(i_th).theta
             else%neu khong va cham
                obs.f(i_th,:) = [0 0]; 
                robs(i_th).theta = inf;
