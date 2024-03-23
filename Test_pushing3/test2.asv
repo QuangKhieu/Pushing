@@ -1,0 +1,20 @@
+% Create a figure
+figure;
+
+% Define arrow properties
+arrowStart = [0.2, 0.2];
+arrowEnd = [0.8, 0.8];
+arrowColor = 'red';
+arrowWidth = 5;
+
+% Plot arrow using the annotation function
+annotation('arrow', [arrowStart(1), arrowEnd(1)], [arrowStart(2), arrowEnd(2)], ...
+    'Color', arrowColor, 'LineWidth', arrowWidth, 'HeadWidth', 15, 'Position', [1.5 0.5 0.6 0.3]);
+
+% Set axis limits for better visibility
+axis([0 1 0 1]);
+
+% Add labels and title
+xlabel('X-axis');
+ylabel('Y-axis');
+title('Arrow Shape in MATLAB');
