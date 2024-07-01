@@ -1,6 +1,7 @@
 # Multi-Robot Cooperative Object Pushing
 
 [link_demo:](https://youtu.be/hgaxgAIuazg)
+
 This project develops a distributed control strategy for a multi-robot formation to autonomously approach, cooperatively push a heavy object, and automatically disengage after completing the task without direct communication.
 
 ## Behavior Control Mechanism
